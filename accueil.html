@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Assistant IA — Université Paris Nanterre</title>
+  <meta name="description" content="Assistant IA pour les démarches étudiantes de l'Université Paris Nanterre — posez vos questions sur la scolarité, le logement, la BU et plus." />
+  <meta name="theme-color" content="#0b6e4f" />
+
+  <style>
+    :root{
+      --bg:#f7faf8;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#0b6e4f; /* couleur principale */
+      --accent-2:#0f766e;
+      --radius:12px;
+      --max-width:1000px;
+      --shadow: 0 6px 18px rgba(8,15,20,0.06);
+      --glass: rgba(255,255,255,0.7);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg, #f4fbf7 0%, var(--bg) 100%);
+      color:#0b1820;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.5;
+      padding:32px 16px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+    }
+
+    .container{
+      width:100%;
+      max-width:var(--max-width);
+      margin:0 auto;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:28px;
+    }
+
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .logo{
+      width:54px;
+      height:54px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:700;
+      box-shadow:var(--shadow);
+      flex-shrink:0;
+    }
+
+    .brand h1{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-0.2px;
+    }
+
+    .brand p{ margin:0; font-size:13px; color:var(--muted) }
+
+    nav a{
+      text-decoration:none;
+      color:var(--accent-2);
+      font-weight:600;
+      padding:8px 12px;
+      border-radius:8px;
+    }
+
+    main{
+      background:transparent;
+      display:grid;
+      grid-template-columns: 1fr 380px;
+      gap:20px;
+      align-items:start;
+    }
+
+    /* left column */
+    .hero{
+      background:linear-gradient(180deg, rgba(255,255,255,0.6), var(--card));
+      padding:28px;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    .hero h2{ margin:0 0 8px 0; font-size:22px }
+    .hero p.lead{ margin:0 0 18px 0; color:var(--muted) }
+
+    .cta-group{
+      display:flex;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:10px;
+      border:0;
+      cursor:pointer;
+      font-weight:600;
+      text-decoration:none;
+    }
+    .btn-primary{
+      background:var(--accent);
+      color:white;
+      box-shadow: 0 6px 18px rgba(11,110,79,0.18);
+    }
+    .btn-ghost{
+      background:transparent;
+      color:var(--accent-2);
+      border:1px solid rgba(11,110,79,0.08);
+    }
+
+    .examples{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .example{
+      background:var(--card);
+      border-radius:10px;
+      padding:10px 12px;
+      box-shadow:0 4px 12px rgba(8,15,20,0.04);
+      cursor:pointer;
+      transition:transform .12s ease, box-shadow .12s ease;
+      font-size:14px;
+    }
+    .example:hover{ transform:translateY(-4px) }
+
+    /* right column */
+    .side{
+      position:sticky;
+      top:32px;
+      align-self:start;
+    }
+    .card{
+      background:var(--card);
+      padding:16px;
+      border-radius:12px;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+    }
+    .card h3{ margin:0 0 8px 0; font-size:15px }
+    .card p{ margin:0; color:var(--muted); font-size:14px }
+
+    footer{
+      margin-top:22px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+      padding:18px 0 4px;
+    }
+
+    /* Chat modal */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:1200;
+      background: rgba(5,10,12,0.45);
+      padding:20px;
+    }
+    .modal.open{ display:flex; }
+
+    .chatbox{
+      width:100%;
+      max-width:880px;
+      height:560px;
+      background:linear-gradient(180deg,#ffffff, #f6fbf9);
+      border-radius:14px;
+      box-shadow:0 20px 50px rgba(8,15,20,0.4);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+    .chat-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 16px;
+      border-bottom:1px solid #edf4ef;
+    }
+    .chat-body{
+      padding:16px;
+      flex:1;
+      overflow:auto;
+      background:linear-gradient(180deg, #f8fffb 0%,#ffffff 100%);
+    }
+    .chat-footer{
+      padding:12px;
+      border-top:1px solid #edf4ef;
+      display:flex;
+      gap:8px;
+    }
+    .msg{
+      max-width:80%;
+      background:#e6ffef;
+      padding:10px 12px;
+      border-radius:10px;
+      margin-bottom:10px;
+      font-size:14px;
+    }
+    .msg.user{ background:#eef2ff; margin-left:auto }
+
+    .small{
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    /* responsive */
+    @media (max-width:980px){
+      main{ grid-template-columns: 1fr; }
+      .side{ position:static; }
+      .chatbox{ max-width:100%; height:70vh }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main">
+    <header>
+      <div class="brand" aria-hidden="false">
+        <div class="logo" aria-hidden="true">N</div>
+        <div>
+          <h1>Assistant IA — Université Paris Nanterre</h1>
+          <p>Ton assistant pour la vie étudiante</p>
+        </div>
+      </div>
+
+      <nav aria-label="Navigation principale">
+        <a href="#faq">FAQ</a>
+        <a href="#contacts">Contacts</a>
+        <a href="#about">À propos</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- LEFT -->
+      <section class="hero" aria-labelledby="hero-title">
+        <h2 id="hero-title">Besoin d'aide pour une démarche ?</h2>
+        <p class="lead">Pose ta question à l'Assistant IA pour la scolarité, le logement, la BU, l'international, et plus. Si l'IA ne peut pas répondre, elle te dirigera vers le service adapté.</p>
+
+        <div class="cta-group">
+          <button class="btn btn-primary" id="open-chat" aria-haspopup="dialog" aria-controls="chat-modal">
+            💬 Parler à l'IA
+          </button>
+          <a class="btn btn-ghost" href="#faq">📚 Consulter la FAQ</a>
+        </div>
+
+        <h3 style="margin-top:6px">Exemples de questions</h3>
+        <div class="examples" role="list">
+          <div class="example" role="listitem" data-example="Comment obtenir une attestation de scolarité ?">Comment obtenir une attestation de scolarité ?</div>
+          <div class="example" role="listitem" data-example="Quels sont les horaires de la BU ?">Quels sont les horaires de la BU ?</div>
+          <div class="example" role="listitem" data-example="Comment demander un logement CROUS ?">Comment demander un logement CROUS ?</div>
+          <div class="example" role="listitem" data-example="Qui contacter pour un problème d'inscription ?">Qui contacter pour un problème d'inscription ?</div>
+        </div>
+
+        <section id="faq" style="margin-top:14px">
+          <h3>FAQ rapide</h3>
+
+          <div style="display:grid; gap:8px; margin-top:8px">
+            <div class="card">
+              <strong>Attestation de scolarité</strong>
+              <p class="small">Obtenir une attestation en quelques clics : se connecter à l'espace étudiant → Mon compte → Documents.</p>
+            </div>
+
+            <div class="card">
+              <strong>Inscription administrative</strong>
+              <p class="small">Dates et pièces à fournir : vérifie la page inscriptions ou contacte la scolarité.</p>
+            </div>
+
+            <div class="card">
+              <strong>Logement & CROUS</strong>
+              <p class="small">Consulte le CROUS Versailles pour les demandes de résidence et les restaurants universitaires.</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="about" style="margin-top:18px">
+          <h3>À propos du projet</h3>
+          <p class="small">Projet développé par des étudiants de l'Université Paris Nanterre. L'assistant utilise des informations publiques et oriente vers les services officiels lorsque nécessaire.</p>
+        </section>
+
+        <section id="limits" style="margin-top:12px">
+          <h3>Ce que l'IA ne fait pas</h3>
+          <p class="small">L'IA n'aide pas pour les devoirs, les corrigés ou toute demande de triche. Pour le support pédagogique, contacte le service d'accompagnement.</p>
+        </section>
+      </section>
+
+      <!-- RIGHT -->
+      <aside class="side" aria-label="Informations rapides">
+        <div class="card">
+          <h3>Contacts utiles</h3>
+          <p class="small" id="contacts">
+            <strong>Scolarité :</strong> scolarite@univ-nanterre.fr<br>
+            <strong>BU :</strong> bu@univ-nanterre.fr<br>
+            <strong>CROUS :</strong> crous-versailles.fr
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>Statut</h3>
+          <p class="small">Beta — Les réponses sont basées sur des sources publiques. Vérifier la provenance indiquée avec chaque réponse.</p>
+        </div>
+
+        <div class="card">
+          <h3>Confidentialité</h3>
+          <p class="small">Aucune donnée personnelle n'est stockée sans consentement explicite. Voir la page RGPD.</p>
+        </div>
+      </aside>
+    </main>
+
+    <footer>
+      <div>© Projet étudiant — Université Paris Nanterre · <a href="#limits">Limites & RGPD</a></div>
+    </footer>
+  </div>
+
+  <!-- Chat modal (placeholder) -->
+  <div class="modal" id="chat-modal" role="dialog" aria-modal="true" aria-labelledby="chat-title">
+    <div class="chatbox" role="document" aria-describedby="chat-desc">
+      <div class="chat-header">
+        <div>
+          <strong id="chat-title">Assistant IA — Chat</strong>
+          <div class="small" id="chat-desc">Pose ta question — les réponses proviennent de la base de connaissances officielle.</div>
+        </div>
+        <div>
+          <button class="btn btn-ghost" id="close-chat" aria-label="Fermer la fenêtre de chat">Fermer ✕</button>
+        </div>
+      </div>
+
+      <div class="chat-body" id="chat-body" tabindex="0">
+        <!-- exemples de messages statiques pour la maquette -->
+        <div class="msg">Bonjour ! Je suis l'assistant IA. Comment puis-je t'aider aujourd'hui ?</div>
+      </div>
+
+      <div class="chat-footer" aria-label="Saisie de message">
+        <input id="chat-input" type="text" aria-label="Votre question" placeholder="Écris ta question ici..." style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid #e6f0ea" />
+        <button class="btn btn-primary" id="send-btn">Envoyer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Interaction simple : ouvrir / fermer modal + insérer exemple dans champ + placeholder d'envoi.
+    const openBtn = document.getElementById('open-chat');
+    const modal = document.getElementById('chat-modal');
+    const closeBtn = document.getElementById('close-chat');
+    const examples = document.querySelectorAll('.example');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const chatBody = document.getElementById('chat-body');
+
+    function openChat(){
+      modal.classList.add('open');
+      // focus input pour accessibilité
+      setTimeout(()=>chatInput.focus(), 220);
+      document.body.style.overflow = 'hidden';
+    }
+    function closeChat(){
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+      openBtn.focus();
+    }
+
+    openBtn.addEventListener('click', openChat);
+    closeBtn.addEventListener('click', closeChat);
+    modal.addEventListener('click', (e) => {
+      if(e.target === modal) closeChat();
+    });
+
+    examples.forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const q = el.getAttribute('data-example') || el.textContent.trim();
+        openChat();
+        chatInput.value = q;
+      });
+    });
+
+    sendBtn.addEventListener('click', async ()=>{
+      const text = chatInput.value.trim();
+      if(!text) return;
+      // afficher message utilisateur dans la maquette
+      const userMsg = document.createElement('div');
+      userMsg.className = 'msg user';
+      userMsg.textContent = text;
+      chatBody.appendChild(userMsg);
+      chatInput.value = '';
+      chatBody.scrollTop = chatBody.scrollHeight;
+
+      // PLACEHOLDER: ici tu connectes ton endpoint '/ask' (FastAPI / Node) qui interroge l'IA
+      // Exemple pseudo-code fetch:
+      /*
+      const res = await fetch('/api/ask', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({question:text})
+      });
+      const data = await res.json();
+      const botMsg = document.createElement('div');
+      botMsg.className = 'msg';
+      botMsg.textContent = data.answer; // afficher réponse
+      chatBody.appendChild(botMsg);
+      chatBody.scrollTop = chatBody.scrollHeight;
+      */
+
+      // Pour la maquette on ajoute une réponse simulée:
+      setTimeout(()=>{
+        const botMsg = document.createElement('div');
+        botMsg.className = 'msg';
+        botMsg.textContent = "Je n'ai pas trouvé l'information exacte dans la base (maquette). Je peux te diriger vers la scolarité ou noter la question pour enrichir la FAQ.";
+        chatBody.appendChild(botMsg);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }, 700);
+    });
+
+    // Enter to send
+    chatInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter') { e.preventDefault(); sendBtn.click(); }
+    });
+
+    // Accessibilité: close with Escape
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape' && modal.classList.contains('open')) closeChat();
+    });
+  </script>
+</body>
+</html>
