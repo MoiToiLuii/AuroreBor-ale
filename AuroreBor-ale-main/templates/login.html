@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion</title>
+</head>
+<header>
+      <div class="brand">
+        <div class="logo">N</div>
+        <div>
+          <h1 style="margin:0;font-size:18px">Assistant IA — Université Paris Nanterre</h1>
+          <p style="margin:0;font-size:13px;color:var(--muted)">Ton assistant pour la vie étudiante</p>
+        </div>
+      </div>
+
+      <nav>
+        <a href="/">Accueil</a>
+        <a href="/faq">FAQ</a>
+        <a href="/contact">Contacts</a>
+        <a href="/about">À propos</a>
+        <a href="/history">Historique</a>
+       {% if session.get("user_id") %}
+  <a href="/logout">Déconnexion</a>
+{% else %}
+  <a href="/login">Connexion</a>
+{% endif %}
+
+        
+      </nav>
+    </header>
+<body>
+  <h1>Connexion</h1>
+  <form method="POST" action="/login">
+    <label>Pseudo :</label>
+    <input type="text" name="username" required>
+
+    <label>Mot de passe :</label>
+    <input type="password" name="password" required>
+
+    <button type="submit">Se connecter</button>
+  </form>
+   <p>
+  Pas encore de compte ?
+  <a href="/signup">Inscription</a>
+</p>
+</body>
+</html>

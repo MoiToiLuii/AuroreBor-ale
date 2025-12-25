@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Historique — Assistant IA Nanterre</title>
+  <style>
+    body{font-family:Arial, sans-serif;background:#f5fbf7;margin:0;padding:20px;}
+    h1{margin-top:0;}
+    .item{background:#fff;border-radius:10px;padding:12px 16px;margin-bottom:12px;
+         box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+    .q{font-weight:bold;color:#1f2933;}
+    .meta{font-size:12px;color:#6b7280;margin-bottom:6px;}
+    .r{margin-top:6px;white-space:pre-wrap;}
+  </style>
+</head>
+<header>
+ <nav>
+        <a href="/">Accueil</a>
+        <a href="/faq">FAQ</a>
+        <a href="/contact">Contacts</a>
+        <a href="/about">À propos</a>
+        <a href="/history">Historique</a>
+        {% if session.get("user_id") %}
+  <a href="/logout">Déconnexion</a>
+{% else %}
+  <a href="/login">Connexion</a>
+{% endif %}
+
+      
+      </nav>
+    </header>
+<body>
+  <h1>Historique des questions</h1>
+
+  {% for it in interactions %}
+    <div class="item">
+      <div class="meta">
+  #{{ it["id"] }} — posée le {{ it["date_pose"] }}
+  {% if it["username"] %}
+    — par {{ it["username"] }} (id {{ it["user_id"] }})
+  {% endif %}
+</div>
+
+
+      <div class="q">Q : {{ it["question"] }}</div>
+      <div class="r">R : {{ it["reponse"] }}</div>
+    </div>
+  {% else %}
+    <p>Aucune interaction enregistrée pour le moment.</p>
+  {% endfor %}
+</body>
+</html>
