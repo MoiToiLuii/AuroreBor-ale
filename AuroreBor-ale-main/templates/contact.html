@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Contacts — Université Paris Nanterre</title>
+  <title>Contacts-AuroreBoréale</title>
 
   <style>
     :root{
@@ -39,16 +39,27 @@
     }
 
     .brand{display:flex;gap:12px;align-items:center;}
-    .logo{
-      width:48px;height:48px;
-      background:linear-gradient(145deg,var(--accent),var(--accent-2));
-      border-radius:14px;
-      color:white;font-weight:700;
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 8px 20px rgba(0,0,0,0.18);
+
+    /* ✅ LOGO SANS FOND */
+.logo{
+  width:250px;          /* logo plus grand */
+  height:250px;
+  border-radius:14px;
+  background:transparent; /* PAS DE FOND */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+    /* MODIF LOGO */
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      padding:4px;
     }
 
-    /* ===== BARRE NAVIGATION AMÉLIORÉE ===== */
+    /* ===== BARRE NAVIGATION ===== */
     nav{
       background:var(--card);
       padding:8px;
@@ -108,12 +119,12 @@
 
 <header>
   <div class="brand">
-    <div class="logo">N</div>
+    <div class="logo">
+      <img src="{{ url_for('static', filename='img/logo-nanterre.png') }}"
+           alt="Université Paris Nanterre">
+    </div>
     <div>
-      <h1 style="margin:0;font-size:20px">Contacts — Université Paris Nanterre</h1>
-      <p style="margin:0;font-size:13px;color:var(--muted)">
-        Tous les services administratifs, pédagogiques et étudiants
-      </p>
+      <h1 style="margin:0;font-size:20px">AuroreBoréale</h1>
     </div>
   </div>
 
@@ -243,4 +254,3 @@ Engagement associatif, événements, culture & sport.
 </div>
 </body>
 </html>
-
