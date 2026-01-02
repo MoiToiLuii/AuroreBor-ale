@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>À propos — Université Paris Nanterre</title>
+  <title>À propos-AuroreBoréale</title>
 
   <style>
     :root{
@@ -49,21 +49,25 @@
       gap:12px;
     }
 
-    .logo{
-      width:48px;
-      height:48px;
-      background:linear-gradient(145deg, var(--accent), var(--accent-2));
-      border-radius:14px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      color:white;
-      font-size:20px;
-      font-weight:600;
-      box-shadow:0 8px 20px rgba(0,0,0,0.18);
-    }
+    /* ✅ LOGO SANS FOND ROUGE */
+ .logo{
+  width:300px;          /* logo plus grand */
+  height:300px;
+  border-radius:14px;
+  background:transparent; /* PAS DE FOND */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
-    /* ===== BARRE DE NAVIGATION BLANCHE ===== */
+    /* MODIF LOGO */
+    .logo img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      padding:4px;
+    }
+    /* ===== NAVIGATION ===== */
     nav{
       background:var(--nav-bg);
       padding:8px;
@@ -142,10 +146,12 @@
 
     <header>
       <div class="brand">
-        <div class="logo">N</div>
+        <div class="logo">
+          <img src="{{ url_for('static', filename='img/logo-nanterre.png') }}"
+               alt="Université Paris Nanterre">
+        </div>
         <div>
-          <h1 style="margin:0;font-size:20px">À propos du projet</h1>
-          <p style="margin:0; font-size:13px; color:var(--muted)">Le futur assistant intelligent de l’Université Paris Nanterre</p>
+          <h1 style="margin:0;font-size:20px">AuroreBoréale</h1>
         </div>
       </div>
 
@@ -163,52 +169,53 @@
       </nav>
     </header>
 
-    <!-- Présentation détaillée -->
+    <!-- PRÉSENTATION -->
     <div class="card">
       <h2>Le projet</h2>
       <p>
-        Ce site fait partie d’un projet étudiant ambitieux visant à créer un assistant intelligent pour l’Université Paris Nanterre.  
-        L’objectif principal est de fournir aux étudiants, enseignants et personnels administratifs un outil fiable et rapide pour accéder à toutes les informations nécessaires concernant les démarches universitaires.
+        Ce site fait partie d’un projet étudiant ambitieux visant à créer un assistant intelligent pour l’Université Paris Nanterre.
+        L’objectif principal est de fournir aux étudiants, enseignants et personnels administratifs un outil fiable et rapide pour accéder
+        à toutes les informations liées aux démarches universitaires.
       </p>
       <p>
-        L’assistant IA centralise les informations provenant de différents services officiels : scolarité, CROUS, bibliothèques universitaires, relations internationales et vie étudiante.  
-        Il est conçu pour guider l’utilisateur étape par étape et pour proposer des réponses adaptées selon le profil (étudiant, enseignant, étudiant international, etc.).
+        L’assistant centralise les informations issues des services officiels : scolarité, CROUS, bibliothèques universitaires,
+        relations internationales et vie étudiante. Il adapte ses réponses selon le profil de l’utilisateur.
       </p>
       <p>
-        En plus de fournir des réponses textuelles claires, l’agent IA suggère les liens directs vers les formulaires officiels, contacts et documents nécessaires pour chaque démarche.  
-        Cela réduit considérablement les erreurs et le temps passé à chercher l’information sur différents sites.
+        Il propose également des liens directs vers les formulaires, documents et contacts officiels afin de limiter les erreurs
+        et le temps perdu à chercher l’information.
       </p>
     </div>
 
-    <!-- Timeline détaillée -->
+    <!-- OBJECTIFS -->
     <div class="card">
       <h2>Les objectifs du projet</h2>
       <div class="timeline">
         <div class="timeline-item">
           <h4>1 — Centraliser l’information</h4>
-          <p>Rassembler toutes les données officielles de l’université dans une interface unique, facile à consulter, avec des informations vérifiées et actualisées en temps réel.</p>
+          <p>Regrouper toutes les données officielles de l’université dans une interface unique, claire et fiable.</p>
         </div>
         <div class="timeline-item">
           <h4>2 — Assister les étudiants 24/7</h4>
-          <p>Permettre aux étudiants de poser des questions à tout moment, même en dehors des heures d’ouverture des services, et d’obtenir des réponses immédiates et fiables.</p>
+          <p>Permettre aux étudiants d’obtenir des réponses immédiates, même en dehors des horaires administratifs.</p>
         </div>
         <div class="timeline-item">
           <h4>3 — Fluidifier la communication</h4>
-          <p>Réduire le nombre de mails ou appels inutiles envoyés aux services administratifs en orientant directement l’étudiant vers la procédure ou le contact approprié.</p>
+          <p>Réduire les sollicitations inutiles envoyées aux services grâce à une meilleure orientation.</p>
         </div>
         <div class="timeline-item">
           <h4>4 — Moderniser l’expérience étudiante</h4>
-          <p>Offrir une interface ergonomique, rapide et intuitive, adaptée aux mobiles comme aux ordinateurs, pour simplifier la navigation et l’accès à l’information.</p>
+          <p>Offrir une interface moderne, intuitive et accessible sur tous les supports.</p>
         </div>
         <div class="timeline-item">
-          <h4>5 — Encourager l’autonomie et l’efficacité</h4>
-          <p>Permettre aux étudiants de gérer leurs démarches de manière autonome tout en ayant la possibilité de contacter un conseiller en cas de besoin.</p>
+          <h4>5 — Encourager l’autonomie</h4>
+          <p>Aider les étudiants à gérer leurs démarches de manière autonome tout en restant accompagnés.</p>
         </div>
       </div>
     </div>
 
     <footer>
-      © Projet étudiant — Université Paris Nanterre  
+      © Projet étudiant — Université Paris Nanterre
     </footer>
 
   </div>
