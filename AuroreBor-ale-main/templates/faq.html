@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>FAQ — Université Paris Nanterre</title>
+<title>FAQ-AuroreBoréale</title>
 
 <style>
 :root{
@@ -36,11 +36,21 @@ header{
 
 .brand{display:flex;gap:12px;align-items:center;}
 .logo{
-  width:50px;height:50px;
-  background:linear-gradient(145deg,var(--accent),var(--accent-2));
+  width:175px;          /* logo plus grand */
+  height:175px;
   border-radius:14px;
-  color:white;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
+  background:transparent; /* PAS DE FOND */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* MODIF LOGO */
+.logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:4px;
 }
 
 nav{
@@ -111,12 +121,12 @@ footer{text-align:center;color:var(--muted);margin-top:40px;}
 
 <header>
   <div class="brand">
-    <div class="logo">N</div>
+    <div class="logo">
+      <img src="{{ url_for('static', filename='img/logo-nanterre.png') }}"
+           alt="Université Paris Nanterre">
+    </div>
     <div>
-      <h1 style="margin:0;font-size:20px">FAQ — Université Paris Nanterre</h1>
-      <p style="margin:0;font-size:13px;color:var(--muted)">
-        Toutes les réponses détaillées pour ta vie étudiante
-      </p>
+      <h1 style="margin:0;font-size:20px">AuroreBoréale</h1>
     </div>
   </div>
 
@@ -273,8 +283,3 @@ function searchFAQ(){
 
 </body>
 </html>
- 
-
-
-
-
