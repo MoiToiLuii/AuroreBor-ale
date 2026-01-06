@@ -1,0 +1,547 @@
+\documentclass[a4paper, 12pt, twoside]{article}
+\usepackage[utf8]{inputenc}        % LaTeX comprend les accents
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+\usepackage{ae,aecompl}
+\usepackage[top=2.5cm, bottom=2cm,
+            left=3cm, right=2.5cm,
+            headheight=15pt]{geometry}
+\usepackage{graphicx}
+\usepackage{eso-pic}    % Images en arrière-plan
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{listings}   % Pour afficher du code
+\usepackage{xcolor}     % Couleurs pour le code
+
+\graphicspath{{Image/}}
+
+\input{pagedegarde}
+
+% ====== Configuration listings pour le code ======
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    stepnumber=1
+}
+
+% ====== À ADAPTER ======
+\title{Aurore-Boréale : assistant IA pour les étudiants de l'Université Paris Nanterre}
+\entreprise{Université Paris Nanterre}
+\datedebut{2025}
+\datefin{2026}
+
+\membrea{BOUYAHIA Ilyess  43002451}
+\membreb{CISSOKHO Mohamed 43009534}\\
+
+\begin{document}
+\pagedegarde
+
+% ================== REMERCIEMENTS ==================
+\section*{Remerciements}
+Nous remercions l'équipe enseignante de l'UE de programmation web pour l'encadrement du projet, ainsi que les personnes qui ont testé notre application et nous ont fourni des retours utiles.
+
+\newpage
+\tableofcontents
+\newpage
+
+% ================== 1. INTRODUCTION ==================
+\section{Introduction}
+Ce rapport présente le projet Aurore-Boréale, un assistant conversationnel destiné aux étudiants de l'Université Paris Nanterre.
+Le site internet permet de poser des questions sur des sujets liés à l'université (inscription, scolarité, vie de campus, informations pratiques, ...) et d'obtenir des réponses générées par une intelligence artificielle.
+
+L'objectif principal est de fournir un point d'entrée unique et simple d'utilisation pour aider les étudiants à trouver rapidement les informations dont ils ont besoin, tout en conservant un historique personnalisé des questions et réponses pour chaque compte utilisateur.
+
+\subsection*{Lien vers le code source}
+Le code source complet du projet Aurore-Boréale est disponible sur le dépôt GitHub public suivant :\\
+\url{https://github.com/MoiToiLuii/AuroreBor-ale}
+
+% ================== 2. ENVIRONNEMENT DE TRAVAIL ==================
+\section{Environnement de travail}
+Le projet a été développé principalement sous Ubuntu/WSL avec l'éditeur Visual Studio Code.
+Le code est hébergé sur un dépôt GitHub public, ce qui a facilité le travail collaboratif et la sauvegarde de l'historique des modifications.
+
+Nous utilisons un environnement virtuel Python (\texttt{venv}) pour isoler les dépendances (Flask, client de l'API d'IA, etc.) ainsi qu'une base de données SQLite locale pour stocker les utilisateurs et les échanges avec l'assistant.
+
+% ================== 3. DESCRIPTION DU PROJET ==================
+\section{Description du projet et objectifs}
+
+\subsection{Objectifs fonctionnels}
+Le projet Aurore-Boréale a pour objectif de fournir aux étudiants de l'Université Paris Nanterre un assistant numérique capable de répondre à leurs questions sur la scolarité, l'inscription, la vie de campus et les services proposés par l'université. 
+Le site internet doit être simple d'utilisation et accessible depuis un navigateur web. Dans notre cas un site local.
+
+Les principaux objectifs fonctionnels sont :
+\begin{itemize}
+    \item Permettre à un étudiant de créer un compte, se connecter et se déconnecter ;
+    \item Offrir une interface de chat pour poser des questions à l'assistant IA ;
+    \item Enregistrer les questions et les réponses dans une base de données, en les associant à l'utilisateur connecté ;
+    \item Afficher un historique des échanges, avec la date, la question, la réponse et le pseudo de l'utilisateur ;
+    \item Permettre à chaque utilisateur d'effacer l'intégralité de son historique de questions/réponses ;
+    \item Avoir une IA qui répond bien aux questions posées par l'utilisateur.
+\end{itemize}
+
+\subsection{Scénario d'utilisation}
+Un étudiant arrive sur la page d'accueil du site puis se connecte, s'inscrit ou peut rester sans utilisateur. 
+Il est sur la page de chat et pose une question liée à l'université (par exemple les horaires de la bibliothèque ou la procédure pour obtenir une attestation de scolarité). 
+L'assistant IA génère une réponse, qui est affichée dans l'interface et enregistrée dans la base de données. 
+L'étudiant peut consulter l'historique de ses questions, vérifier les réponses précédentes et, s'il le souhaite, effacer tout son historique visible via un bouton dédié, sans supprimer les enregistrements en base de données.
+
+% ================== 4. BIBLIO, OUTILS, TECHNO ==================
+\section{Bibliothèques, outils et technologies}
+Les principales technologies utilisées sont :
+\begin{itemize}
+    \item \textbf{Python} pour la logique serveur ;
+    \item \textbf{Flask} comme framework web pour gérer les routes, les sessions et les templates ;
+    \item \textbf{SQLite} pour la base de données (tables utilisateurs, questions, réponses) ;
+    \item \textbf{HTML / CSS / JavaScript} pour les pages et la mise en forme (barre de navigation, historique, formulaires, interactions asynchrones) ;
+    \item \textbf{API d'IA} (modèles Mistral ou OpenAI) pour générer les réponses aux questions des étudiants ;
+    \item \textbf{Git et GitHub} pour le suivi de version et l'hébergement du code source ;
+    \item \textbf{WSL Ubuntu} comme environnement de développement.
+\end{itemize}
+
+% ================== 5. FONCTIONNEMENT DE L'IA ==================
+\section{Fonctionnement de l'IA utilisée}
+
+L'application Aurore-Boréale utilise une API d'intelligence artificielle de type modèle de langage (LLM), accessible via requêtes HTTP depuis le serveur Flask. 
+Pour chaque question posée par un étudiant, le backend construit un \emph{prompt} textuel qui décrit le rôle de l'IA, le contexte universitaire et l'historique récent des échanges de cet utilisateur.
+
+Le prompt contient notamment :
+\begin{itemize}
+    \item des instructions expliquant que l'IA doit répondre uniquement à des questions en lien avec l'Université Paris Nanterre (inscription, scolarité, vie de campus, services aux étudiants) ;
+    \item un rappel du ton attendu : réponses en français, claires, structurées, sans emoji ;
+    \item plusieurs paires question/réponse récentes issues de la base de données pour l'utilisateur connecté ;
+    \item la nouvelle question que l'étudiant vient de saisir.
+\end{itemize}
+
+Le serveur envoie ce prompt à l'API d'IA et reçoit en retour un texte de réponse. 
+Cette réponse est nettoyée (suppression d'éventuels emojis et espaces superflus) puis enregistrée dans la table \texttt{reponses}, liée à la question correspondante dans la table \texttt{questions}. 
+Lors d'une prochaine question du même compte, l'application récupère les échanges précédents de cet utilisateur pour les réinjecter dans le prompt, ce qui donne à l'assistant une mémoire personnalisée par étudiant.
+
+% ================== 6. COMMENT L'IA NOUS A AIDÉS ==================
+\section{Comment l'IA nous a aidé dans le projet}
+
+Durant la réalisation du projet Aurore-Boréale, nous avons utilisé l'IA comme outil d'assistance tout au long du développement.
+
+\subsection{Aide à la conception}
+L'IA nous a aidés à clarifier le cahier des charges et à structurer l'application.
+Elle a proposé une organisation des routes Flask (\texttt{/login}, \texttt{/signup}, \texttt{/history}, \texttt{/api/chat}) ainsi qu'un modèle de base de données séparant les tables \texttt{users}, \texttt{questions} et \texttt{reponses}.
+Ces suggestions ont servi de base que nous avons ensuite adaptée aux contraintes du projet.
+
+\subsection{Aide au développement et au débogage}
+Nous avons sollicité l'IA pour générer ou compléter certains fragments de code (requêtes SQL, gestion des sessions, gabarits HTML/Jinja) et pour analyser des messages d'erreur.
+Elle a par exemple permis d'identifier une requête d'insertion non exécutée ou un problème de chemin de base de données.
+Chaque extrait proposé a été relu, testé et corrigé si nécessaire avant d'être intégré au projet.
+
+% ================== 7. TRAVAIL RÉALISÉ ==================
+\section{Travail réalisé}
+
+Cette section présente les fonctionnalités prévues au départ, celles qui ont été effectivement implémentées et la répartition réelle du travail au sein du groupe.
+
+\subsection{Fonctionnalités prévues}
+Au début du projet, nous avions identifié les fonctionnalités suivantes :
+\begin{itemize}
+    \item système d'inscription, de connexion et de déconnexion des utilisateurs ;
+    \item interface de chat avec l'assistant IA ;
+    \item enregistrement de toutes les questions et réponses dans une base de données ;
+    \item historique personnel par utilisateur avec mémoire de l'IA ;
+    \item possibilité pour un utilisateur d'effacer l'intégralité de son historique ;
+    \item intégration d'informations officielles de l'université (horaires, contacts, etc.).
+\end{itemize}
+
+\subsection{Fonctionnalités réalisées}
+Dans la version actuelle de l'application, nous avons réalisé :
+\begin{itemize}
+    \item la création de compte, la connexion et la déconnexion avec gestion de session ;
+    \item la page de chat permettant d'envoyer une question à l'IA et d'afficher la réponse ;
+    \item l'enregistrement des questions et réponses en base, associées à l'utilisateur connecté ;
+    \item une page d'historique affichant les questions, les réponses, la date et le pseudo ;
+    \item une mémoire de l'IA limitée aux échanges de l'utilisateur courant ;
+    \item un bouton permettant à chaque utilisateur de supprimer son historique visible ;
+    \item une interface responsive et esthétiquement cohérente.\\ \\ \\
+\end{itemize}
+
+
+         Création du premier profil test :
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{7.2.png}
+    \caption{Capture d’écran associée à la partie 7.2}
+    \label{fig:7.2}
+\end{figure}
+
+\subsection{Fonctionnalités non réalisées et raisons}
+Certaines fonctionnalités n'ont pas pu être terminées, notamment :
+\begin{itemize}
+    \item l'intégration complète de données mises à jour automatiquement depuis le site de l'université ;
+    \item une interface d'administration avancée pour analyser les questions fréquentes ;
+    \item un système complet de scraping web pour enrichir la base de connaissances.
+\end{itemize}
+Ces éléments ont été jugés moins prioritaires compte tenu du temps disponible et de la nécessité de stabiliser d'abord le cœur du système (authentification, base de données, intégration de l'IA).
+
+% ================== 8. DIFFICULTÉS RENCONTRÉES ==================
+\section{Difficultés rencontrées}
+
+Le développement d'Aurore-Boréale a présenté plusieurs défis techniques et architecturaux significatifs. Cette section détaille les principales difficultés rencontrées et les solutions mises en place.
+
+\subsection{Intégration du chatbot et complexités liées à l'API d'IA}
+
+L'intégration du chatbot a constitué l'une des étapes les plus complexes du projet. Cette partie combinait des enjeux techniques avancés, une compréhension approfondie des API externes, et une bonne maîtrise de l'architecture backend.
+
+La principale difficulté a résidé dans le manque de clarté initiale sur le fonctionnement global d'un service d'IA externe. Il ne s'agissait plus simplement de coder une interface ou une route Flask, mais de faire communiquer une application locale avec une API distante, soumise à des règles strictes d'authentification, de configuration et d'utilisation.
+
+\subsubsection{Problèmes rencontrés avec Mistral AI}
+
+L'utilisation de Mistral AI a rapidement révélé plusieurs obstacles techniques majeurs :
+
+\begin{itemize}
+    \item \textbf{Erreurs de module manquant} : Des erreurs récurrentes de type \texttt{ModuleNotFoundError} sont apparues lors de l'import de la bibliothèque \texttt{mistralai}, malgré des tentatives répétées d'installation via \texttt{pip}.
+    
+    \item \textbf{Restrictions du système (PEP 668)} : Ces difficultés étaient directement liées à WSL Ubuntu. Le système bloquait l'installation de paquets Python au niveau global en raison des restrictions introduites par la norme PEP 668. Cette contrainte, mal connue au départ, empêchait l'installation classique de bibliothèques et générait des messages d'erreur peu explicites, entraînant une perte de temps importante.
+    
+    \item \textbf{Erreurs d'authentification 401} : Même lorsque la bibliothèque semblait correctement installée, des erreurs d'authentification systématiques survenaient lors des appels à l'API, rendant le diagnostic difficile.
+    
+    \item \textbf{Confusion entre clé API et agent ID} : Mistral fournissait un agent ID lors de la création de l'agent, laissant penser que celui-ci suffisait pour effectuer des requêtes. Cependant, il était en réalité indispensable de disposer d'une clé API valide, correctement définie dans les variables d'environnement. Le manque de compréhension initial de cette distinction a constitué une source majeure de blocage.
+\end{itemize}
+
+
+
+
+
+\subsubsection{Gestion des clés API (OpenAI et Mistral)}
+
+La gestion des clés API s'est révélée être une difficulté centrale et transversale à l'ensemble du projet :
+
+\begin{itemize}
+    \item \textbf{Concepts fondamentaux} : Il a d'abord fallu comprendre ce qu'est réellement une clé API, à savoir un identifiant personnel permettant d'authentifier une application auprès d'un service externe.
+    
+    \item \textbf{Où et comment obtenir une clé} : Les processus d'obtention variaient selon le fournisseur (création de compte, accès à un tableau de bord, génération de la clé). Cette première étape n'était pas triviale.
+    
+    \item \textbf{Stockage sécurisé} : Le choix entre stocker la clé directement dans le code ou utiliser une variable d'environnement s'est avéré crucial pour la sécurité de l'application. Les bonnes pratiques recommandent fortement l'utilisation de variables d'environnement (fichier \texttt{.env}) pour éviter la fuite de credentials sur GitHub.
+    
+    \item \textbf{Diagnostic des erreurs 401} : Une clé invalide, expirée, mal copiée ou mal chargée dans l'environnement entraîne systématiquement une erreur 401 Unauthorized, sans message explicatif détaillé. Cette opacité a considérablement compliqué le débogage.
+    
+    \item \textbf{Aspects financiers} : Des interrogations légitimes ont émergé concernant le caractère payant ou non des API. La notion de crédits, de limites d'utilisation mensuelle, et de facturation a ajouté une dimension supplémentaire de complexité, en particulier dans un cadre étudiant.
+    
+    \item \textbf{Sécurité et bonnes pratiques} : La prise de conscience des risques liés au partage public des clés API (notamment sur GitHub) a nécessité une clarification approfondie des bonnes pratiques de sécurité.
+\end{itemize}
+
+\subsection{Tentative de création d'une base de connaissances (knowledge base)}
+
+Une autre difficulté majeure du projet a concerné la tentative de création d'une base de connaissances destinée à enrichir les réponses du chatbot. L'idée initiale était de scraper automatiquement des informations depuis des sites institutionnels tels que ceux du CROUS ou de l'Université Paris Nanterre.
+
+\subsection{Obstacles techniques et légaux}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{8.2.2.png}
+    \caption{Erreur d’intégration de l’API d’IA (cas 1)}
+    \label{fig:8.2.2}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{8.2.22.png}
+    \caption{Erreur d’intégration de l’API d’IA (cas 2)}
+    \label{fig:8.2.22}
+\end{figure}
+
+
+Cette approche s'est rapidement heurtée à de nombreux obstacles :
+
+\begin{itemize}
+    \item \textbf{Restrictions des sites web} : Plusieurs tentatives de récupération de données ont échoué en raison de restrictions imposées par les sites eux-mêmes. Des erreurs de type \texttt{Failed to fetch} sont apparues, souvent liées à des politiques de sécurité, des protections anti-bots ou des limitations CORS.
+    
+    \item \textbf{Extraction de contenu complexe} : L'extraction de contenu à partir de fichiers PDF ou de pages web dynamiques s'est révélée particulièrement complexe. Les données récupérées étaient soit incomplètes, soit mal structurées, rendant leur exploitation par le chatbot difficile, voire impossible.
+    
+    \item \textbf{Enjeux éthiques et juridiques} : La question du respect du droit d'auteur et des conditions d'utilisation des sites a également soulevé des préoccupations légitimes. Le scraping, bien que techniquement possible, n'est pas toujours légalement autorisé.
+    
+    \item \textbf{Abandon stratégique} : Face à ces contraintes, il a fallu accepter que le scraping automatisé n'était pas une solution viable. Cette décision a été difficile, car elle impliquait l'abandon d'une idée centrale initialement envisagée. Néanmoins, cette phase a été extrêmement formatrice, permettant de comprendre les limites techniques, juridiques et éthiques du scraping web.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+\subsection{Problèmes liés à l'environnement de développement (WSL, Python, modules)}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{8.6.png}
+    \caption{Problèmes liés à l’environnement WSL et à Python}
+    \label{fig:8.6}
+\end{figure}
+
+L'environnement de développement utilisé, combinant WSL Ubuntu et Visual Studio Code, a également été une source importante de difficultés :
+
+\begin{itemize}
+    \item \textbf{Conflits Python système vs utilisateur} : Des conflits fréquents sont apparus entre Python installé au niveau système et Python utilisé par l'utilisateur, rendant le comportement de \texttt{pip} imprévisible.
+    
+    \item \textbf{Installation de modules problématique} : Les erreurs lors de l'installation de modules Python ont été particulièrement bloquantes. Les messages d'erreur liés à la norme PEP 668 étaient difficiles à interpréter au départ, et leur résolution nécessitait une compréhension plus approfondie de la gestion des dépendances Python.
+    
+    \item \textbf{Méconnaissance des environnements virtuels} : L'incompréhension initiale du rôle des environnements virtuels a compliqué la situation. Il a fallu apprendre que l'utilisation d'un environnement virtuel (\texttt{venv}) est essentielle pour :
+    \begin{itemize}
+        \item isoler les dépendances du projet ;
+        \item éviter de casser le système Python ;
+        \item garantir la reproductibilité de l'application sur différentes machines.
+    \end{itemize}
+    Cette prise de conscience a marqué une étape importante dans la montée en compétence technique.
+\end{itemize}
+
+
+
+\subsection{Difficultés esthétiques et cohérence visuelle de l'interface}
+
+Des difficultés notables ont été rencontrées sur le plan esthétique et visuel. L'objectif était de proposer une interface à la fois moderne, professionnelle et adaptée à un contexte universitaire.
+
+\begin{itemize}
+    \item \textbf{Harmonisation visuelle} : Il a fallu harmoniser l'ensemble des pages du site (page d'accueil, page de connexion, inscription, FAQ, etc.) afin de garantir une cohérence graphique.
+    
+    \item \textbf{Contraintes de modification} : Toute amélioration esthétique devait être réalisée sans modifier la structure logique ni le contenu existant, ce qui imposait des contraintes supplémentaires.
+    
+    \item \textbf{Intégration du chatbot} : L'intégration du chatbot dans l'interface principale a demandé une attention particulière, afin de ne pas perturber la lisibilité ni la navigation.
+    
+    \item \textbf{Itérations sur la page de connexion} : La page de connexion, en particulier, a fait l'objet de plusieurs itérations avant d'aboutir à un rendu visuellement crédible, accueillant et digne d'un site institutionnel.
+\end{itemize}
+
+\subsection{Gestion de la base de données SQLite}
+
+La première difficulté relatée concerne la gestion correcte de la base de données SQLite : certaines requêtes d'insertion n'étaient pas exécutées (erreurs de syntaxe ou d'appel de fonction), ce qui empêchait l'historique de se mettre à jour. Le débogage a nécessité une vérification minutieuse du code SQL et de la gestion des transactions.
+
+\subsection{Gestion des sessions Flask}
+
+Nous avons également eu des problèmes liés aux sessions Flask : gestion de \texttt{session["user\_id"]} et différenciation des historiques selon l'utilisateur connecté. Ces problèmes ont été résolus en clarifiant les bonnes pratiques de gestion des sessions dans Flask et en testant minutieusement chaque route.
+
+% ================== 9. ARCHITECTURE ET CODE ==================
+\section{Architecture technique et code source}
+
+\subsection{Structure du projet}
+Le projet suit une architecture classique d'application Flask :
+
+\begin{verbatim}
+AuroreBoreale/
+├── app.py                 # Application principale
+├── database.py            # Initialisation de la base de données
+├── config.py              # Configuration (secrets, clés API)
+├── templates/
+│   ├── base.html          # Template de base
+│   ├── index.html         # Page d'accueil
+│   ├── login.html         # Page de connexion
+│   ├── signup.html        # Page d'inscription
+│   ├── chat.html          # Interface de chat
+│   └── history.html       # Historique des échanges
+├── static/
+│   ├── css/
+│   │   └── style.css      # Styles principaux
+│   └── js/
+│       └── chat.js        # Interactions JavaScript
+├── venv/                  # Environnement virtuel
+├── requirements.txt       # Dépendances Python
+└── README.md              # Documentation
+
+\end{verbatim}
+
+\subsection*{Illustrations pour la section 9.1}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{9.1.png}
+    \caption{Premier exemple associé à la section 9.1}
+    \label{fig:9.1}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{9.1-2.png}
+    \caption{Deuxième exemple associé à la section 9.1}
+    \label{fig:9.1-2}
+\end{figure}
+
+% ================== 10. BILAN ==================
+\section{Bilan}
+
+\subsection{Conclusion}
+Le projet Aurore-Boréale nous a permis de mettre en pratique les notions de développement web vues en cours : création d'une application Flask, utilisation d'une base de données, gestion d'utilisateurs et intégration d'un service externe d'intelligence artificielle.
+Nous avons également découvert les enjeux spécifiques liés à l'utilisation d'un modèle de langage dans une application destinée à de vrais utilisateurs (qualité des réponses, cadre d'usage, stockage des échanges).
+
+Au-delà de l'aspect technique, ce projet a été une excellente opportunité pour progresser en gestion de problèmes complexes, en débogage méthodique et en compréhension des bonnes pratiques de sécurité.
+
+\subsection{Perspectives}
+Plusieurs améliorations sont envisageables pour la suite :
+\begin{itemize}
+    \item enrichir la base de connaissances en important automatiquement des informations à jour depuis le site de l'université ;
+    \item améliorer l'interface graphique et l'expérience utilisateur (design responsive complet, accessibilité W3C, version mobile optimisée) ;
+    \item ajouter une interface d'administration pour analyser les questions fréquentes et ajuster les consignes données à l'IA ;
+    \item expérimenter d'autres modèles d'IA ou combiner l'IA avec une base de FAQ structurée afin de renforcer la fiabilité des réponses ;
+    \item mettre en place des métriques de qualité pour évaluer la performance du chatbot ;
+    \item explorer des solutions de caching ou de rate-limiting pour optimiser les coûts API.
+\end{itemize}
+
+% ================== 11. BIBLIO / WEBOGRAPHIE ==================
+\newpage
+\section{Bibliographie}
+\begin{thebibliography}{2}
+   \bibitem[LAM94]{lam1} L. Lamport, {\it \LaTeX: A Document Preparation System}, Addison-Wesley, 1994.
+   \bibitem[PEP668]{pep668} Python Enhancement Proposal 668 -- Marking Python base environments as externally managed, \url{https://peps.python.org/pep-0668/}
+\end{thebibliography}
+
+\newpage
+\section{Webographie}
+\begin{thebibliography}{9}
+   \bibitem[DOCFLASK]{flaskdoc} \url{https://flask.palletsprojects.com/}
+   \bibitem[SQLITE]{sqlite} \url{https://www.sqlite.org/docs.html}
+   \bibitem[MISTRAL]{mistral} \url{https://docs.mistral.ai/}
+   \bibitem[OPENAI]{openai} \url{https://platform.openai.com/docs/}
+   \bibitem[WERKZEUG]{werkzeug} \url{https://werkzeug.palletsprojects.com/}
+   \bibitem[JINJA2]{jinja2} \url{https://jinja.palletsprojects.com/}
+   \bibitem[VENV]{venv} \url{https://docs.python.org/3/library/venv.html}
+   \bibitem[WSL]{wsl} \url{https://learn.microsoft.com/en-us/windows/wsl/}
+\end{thebibliography}
+
+% ================== 12. ANNEXES ==================
+\newpage
+\section{Annexes}
+\appendix
+\makeatletter
+\def\@seccntformat#1{Annexe~\csname the#1\endcsname:\quad}
+\makeatother
+
+\section{Cahier des charges}
+Cette annexe rappelle les exigences initiales du projet (fonctionnalités demandées, contraintes techniques, etc.).
+
+
+
+\section{Manuel utilisateur}
+\subsection{Installation}
+\begin{enumerate}
+    \item Cloner le dépôt GitHub :
+    \begin{verbatim}
+    git clone https://github.com/MoiToiLuii/AuroreBor-ale
+    cd AuroreBor-eale.main
+    \end{verbatim}
+    
+    \item Créer et activer l'environnement virtuel :
+    \begin{verbatim}
+    python3 -m venv venv
+    source venv/bin/activate  # Linux/Mac
+    venv\Scripts\activate     # Windows
+    \end{verbatim}
+    
+    \item Installer les dépendances :
+    \begin{verbatim}
+    pip install -r requirements.txt
+    \end{verbatim}
+    
+
+    
+    \item Lancer le serveur :
+    \begin{verbatim}
+    python3 app.py
+    \end{verbatim}
+    
+    \item Accéder à l'application : \url{http://localhost:5000}
+\end{enumerate}
+
+\subsection{Utilisation}
+\begin{enumerate}
+    \item \textbf{S'inscrire} : Cliquer sur "Inscription", remplir le formulaire avec un identifiant, un email et un mot de passe.
+    \item \textbf{Se connecter} : Utiliser email et mot de passe sur la page de connexion.
+    \item \textbf{Poser une question} : Sur la page de chat, taper une question dans le champ de texte et appuyer sur "Envoyer".
+    \item \textbf{Consulter l'historique} : Cliquer sur "Mon historique" pour voir toutes les questions et réponses antérieures.
+    \item \textbf{Effacer l'historique} : Cliquer sur le bouton "Effacer mon historique" pour vider la liste affichée (les données sont conservées en base de données à titre d'audit).
+    \item \textbf{Se déconnecter} : Cliquer sur "Déconnexion" pour terminer la session.
+\end{enumerate}
+
+\section{Configuration requise}
+\begin{itemize}
+    \item Python 3.8 ou supérieur
+    \item Flask 2.0+
+    \item SQLite3 (fourni avec Python)
+    \item Une clé API valide pour Mistral ou OpenAI
+    \item Navigateur web moderne (Chrome, Firefox, Safari, Edge)
+\end{itemize}
+
+\section{Fichier requirements.txt}
+\begin{verbatim}
+Flask==2.3.2
+Flask-Session==0.5.0
+python-dotenv==1.0.0
+mistralai==0.0.9
+requests==2.31.0
+Werkzeug==2.3.6
+\end{verbatim}
+
+\section{Exemple d’exécution du projet}
+
+Depuis VS Code sous Linux (WSL) :
+
+1. Activer l’environnement virtuel.
+2. Lancer le serveur avec la commande : python3 app.py
+3. Ouvrir le navigateur à l’adresse : http://localhost:5000
+\\ \\
+Cette annexe présente un exemple complet d’utilisation de l’application.
+Les figures 1 à 6 montrent successivement 
+\begin{itemize}
+    \item la page d’accueil ;
+    \item la page de connexion ;
+    \item la création d’un compte ;
+    \item l’interface de chat avec une question/réponse ;
+    \item la page d’historique ;
+    \item la déconnexion.
+\end{itemize}
+\\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{13e.png}
+    \caption{Vue 1 de l’interface principale}
+    \label{fig:13e1}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{13e2.png}
+    \caption{Vue 2 de l’interface principale}
+    \label{fig:13e2}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{13e3.png}
+    \caption{Vue 3 de l’interface principale}
+    \label{fig:13e3}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{13e4.png}
+    \caption{Vue 4 de l’interface principale}
+    \label{fig:13e4}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{13e5.png}
+    \caption{Vue 5 de l’interface principale}
+    \label{fig:13e5}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{13e6.png}
+    \caption{Vue 6 de l’interface principale}
+    \label{fig:13e6}
+\end{figure}
+
+\end{document}
